@@ -31,20 +31,20 @@
 <script>
 export default {
   data () {
-    let validator = function (rule, value, callBack) {
-      // rule当前规则
-      // value当前表单项的值
-      // callback 回调函数
-      // 正常写法
-      //   if (value) {
-      //     // 正确 勾选了协议
-      //     callBack() // 一切OK请继续
-      //   } else {
-      //     // 不对 没勾选协议
-      //     callBack(new Error('您必须同意无条件被我们蒙骗'))
-      //   }
-      value ? callBack() : callBack(new Error('您必须同意无条件被我们蒙骗')) // 炫技模式
-    }
+    // let validator = function (rule, value, callBack) {
+    //   // rule当前规则
+    //   // value当前表单项的值
+    //   // callback 回调函数
+    //   // 正常写法
+    //   //   if (value) {
+    //   //     // 正确 勾选了协议
+    //   //     callBack() // 一切OK请继续
+    //   //   } else {
+    //   //     // 不对 没勾选协议
+    //   //     callBack(new Error('您必须同意无条件被我们蒙骗'))
+    //   //   }
+    //   value ? callBack() : callBack(new Error('您必须同意无条件被我们蒙骗')) // 炫技模式
+    // }
     return {
       ruleForm: {
         mobile: '',
@@ -56,7 +56,13 @@ export default {
           { required: true, message: '请输入手机号' },
           { pattern: /^1[3456789]\d{9}$/, message: '输入正确手机号' }
         ],
-        checked: [{ validator }],
+        checked: [{ validator: function (rule, value, callback) {
+          if (value) {
+            callback()
+          } else {
+            callback(new Error('您需要勾选用户协议'))
+          }
+        } }],
         code: [
           { required: true, message: '请输入验证码' },
           { pattern: /^\d{6}$/, message: '请输入正确的验证码' }
@@ -68,7 +74,7 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          alert('submit!')
+          alert('登录成功！！！')
         } else {
           console.log('error submit!!')
           return false
