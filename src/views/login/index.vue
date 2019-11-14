@@ -90,7 +90,7 @@ export default {
             window.localStorage.setItem('user-token', res.data.data.token)
             this.$router.push('home')
           }).catch(() => {
-            // 登录错误的话  提示信息 登陆失败
+            // 登录错误 提示信息 登陆失败
             this.$message({
               type: 'warning',
               message: '请输入正确手机号'
