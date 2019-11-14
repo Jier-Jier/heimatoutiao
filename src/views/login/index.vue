@@ -21,7 +21,7 @@
         </el-form-item>
         <!-- 登录按钮  👇 -->
         <el-form-item>
-          <el-button style="width:100%" type="primary" @click="submitForm('ruleForm')">登录</el-button>
+          <el-button style="width:100%" type="primary" @click="login('ruleForm')">登录</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -57,6 +57,9 @@ export default {
           { pattern: /^1[3456789]\d{9}$/, message: '输入正确手机号' }
         ],
         checked: [{ validator: function (rule, value, callback) {
+          /* rule为当前的规则。
+          value 为checked的值。
+          callback 为回调函数 */
           if (value) {
             callback()
           } else {
@@ -71,18 +74,22 @@ export default {
     }
   },
   methods: {
-    submitForm (formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          alert('登录成功！！！')
-        } else {
-          console.log('error submit!!')
-          return false
+    login () {
+      this.$refs.ruleForm.validate(isOK => {
+        if (isOK) {
+          // 用axios提交登录请求，
+          this.$http({
+            url: '/authorizations', // 路径
+            method: 'post', // 请求类型
+            data: this.ruleForm// 验证数据
+          }).then(res => {
+            // 打印token
+            console.log(res.data.data.token)
+            // 将token令牌存储到本地
+            window.localStorage.setItem('user-token', res.data.data.token)
+          })
         }
       })
-    },
-    resetForm (formName) {
-      this.$refs[formName].resetFields()
     }
   }
 }
