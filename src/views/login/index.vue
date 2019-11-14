@@ -23,6 +23,7 @@
         <el-form-item>
           <el-button style="width:100%" type="primary" @click="login('ruleForm')">登录</el-button>
         </el-form-item>
+
       </el-form>
     </el-card>
   </div>
@@ -87,6 +88,13 @@ export default {
             console.log(res.data.data.token)
             // 将token令牌存储到本地
             window.localStorage.setItem('user-token', res.data.data.token)
+            this.$router.push('home')
+          }).catch(() => {
+            // 登录错误的话  提示信息 登陆失败
+            this.$message({
+              type: 'warning',
+              message: '请输入正确手机号'
+            })
           })
         }
       })
