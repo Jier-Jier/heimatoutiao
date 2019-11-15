@@ -28,10 +28,10 @@
             </template>
             <!-- <el-menu-item-group> -->
             <!-- <template slot="title">分组一</template> -->
-            <el-menu-item index="article">发布文章</el-menu-item>
-            <el-menu-item index="2-2">内容列表</el-menu-item>
-            <el-menu-item index="2-3">评论列表</el-menu-item>
-            <el-menu-item index="2-4">素材管理</el-menu-item>
+            <el-menu-item index="publish">发布文章</el-menu-item>
+            <el-menu-item index="article">内容列表</el-menu-item>
+            <el-menu-item index="comment">评论列表</el-menu-item>
+            <el-menu-item index="image">素材管理</el-menu-item>
             <!-- </el-menu-item-group> -->
           </el-submenu>
           <el-submenu index="3">
@@ -46,7 +46,7 @@
             <el-menu-item index="3-4">粉丝列表</el-menu-item>
             <!-- </el-menu-item-group> -->
           </el-submenu>
-          <el-menu-item index="4">
+          <el-menu-item index="account">
             <!-- <i class="el-icon-setting"></i> -->
             <span slot="title">账户信息</span>
           </el-menu-item>
@@ -63,10 +63,9 @@
               </div>
             </el-col>
             <el-col style="text-align:right">
-            <el-input style="width:200px" v-model="input" placeholder="请输入内容"></el-input>
+              <el-input style="width:200px" v-model="input" placeholder="请输入内容"></el-input>
             </el-col>
             <el-col :span="6">
-
               <div class="grid-content bg-purple-right">
                 <img style="margin-right:14px" src="../../assets/imgs/avatar.jpg" alt />
                 <span style="font-size:14px">哈哈哈哈</span>
@@ -77,7 +76,7 @@
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item>个人信息</el-dropdown-item>
                     <el-dropdown-item>git地址</el-dropdown-item>
-                    <el-dropdown-item>退出</el-dropdown-item>
+                    <el-dropdown-item @click.native="logout">退出</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </div>
@@ -108,8 +107,29 @@ export default {
     },
     handleClose (key, keyPath) {
       // console.log(key, keyPath)
+    },
+    logout () {
+      this.$confirm('您将退出登录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        window.localStorage.removeItem('user-token')
+        this.$router.push('/login')
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     }
+
   }
+
 }
 </script>
 
