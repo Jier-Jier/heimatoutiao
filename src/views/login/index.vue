@@ -85,10 +85,9 @@ export default {
             data: this.ruleForm// 验证数据
           }).then(res => {
             // 打印token
-            console.log(res.data.data.token)
             // 将token令牌存储到本地
             window.localStorage.setItem('user-token', res.data.data.token)
-            this.$router.push('home')
+            this.$router.push('layout')
           }).catch(() => {
             // 登录错误 提示信息 登陆失败
             this.$message({
