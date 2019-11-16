@@ -79,28 +79,8 @@ export default {
     },
     handleClose (key, keyPath) {
       // console.log(key, keyPath)
-    },
-    logout () {
-      this.$confirm('您将退出登录, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          window.localStorage.removeItem('user-token')
-          this.$router.push('/login')
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
-        })
-        .catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          })
-        })
     }
+
   }
 }
 </script>
@@ -148,9 +128,7 @@ export default {
   }
 }
 .el-main {
-  // background-color: #e9eef3;
   color: #333;
   text-align: left;
-  // line-height: 160px;
 }
 </style>
