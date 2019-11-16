@@ -40,18 +40,15 @@
         </el-form-item>
       </el-form>
     </el-card>
-    <el-card>
-      <div slot="header" class="clearfix">
+    <el-card style="text-align: center">
+      <div width="100%" style="text-align: left" slot="header" class="clearfix">
         <span>共{{this.articleValue}}条信息</span>
       </div>
-      <el-table :data="articles" style="width: 100%">
-        <el-table-column
-        prop="date"
-        label="封面"
-        width="180">
-        <template slot-scope="scope">
-          <img width="50" :src="scope.row.cover.images[0]" alt="">
-        </template>
+      <el-table :data="articles" v-loading="loading" style="width: 100%">
+        <el-table-column prop="date" label="封面" width="180">
+          <template slot-scope="scope">
+            <img width="50" :src="scope.row.cover.images[0]" alt />
+          </template>
         </el-table-column>
         <el-table-column prop="title" label="标题" width="180"></el-table-column>
         <el-table-column prop="status" label="状态">
@@ -69,6 +66,13 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :total="articleValue"
+        @current-change="onpageChange"
+        :disabled = 'forbidden'
+      ></el-pagination>
     </el-card>
   </div>
 </template>
@@ -77,7 +81,9 @@ export default {
   name: 'Article',
   data () {
     return {
-      articleValue: '',
+      articleValue: 0,
+      loading: true,
+      forbidden: false,
       form: {
         status: '',
         channel_id: '',
@@ -114,7 +120,13 @@ export default {
     onSubmit () {
       console.log('submit!')
     },
-    loadArticle () {
+    onpageChange (page) {
+      console.log(page)
+      this.loadArticle(page)
+    },
+    loadArticle (page) {
+      this.loading = true
+      this.forbidden = true
       const token = window.localStorage.getItem('user-token')
       // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
       this.$http({
@@ -122,6 +134,15 @@ export default {
         method: 'GET', // 请求类型
         headers: {
           Authorization: `Bearer ${token}`
+        },
+        // query参数  需要通过params传递
+        params: {
+          page: page,
+          per_page: 10,
+          status: 2
+          // channel_id,
+          // begin_pubdate,
+          // end_pubdate
         }
       })
         .then(res => {
@@ -134,16 +155,20 @@ export default {
           // 登录错误 提示信息 登陆失败
           console.log(token, 'shibais')
         })
+        .finally(() => {
+          this.loading = false
+          this.forbidden = false
+        })
     }
   },
   created () {
-    this.loadArticle()
+    this.loadArticle(1)
   }
 }
 </script>
 
-<style>
-.box-card {
-  width: 100%;
+<style lang="less" scoped>
+.el-pagination {
+  margin-top: 30px;
 }
 </style>
