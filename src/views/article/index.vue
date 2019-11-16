@@ -31,13 +31,14 @@
           </el-select>
         </el-form-item>
         <!-- 筛选时间  👇 -->
-        <el-form-item label="活动时间">
+        <el-form-item label="时间选择">
           <el-date-picker
             v-model="rangeDate"
             type="daterange"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+            value-format="yyyy-MM-dd"
           ></el-date-picker>
         </el-form-item>
         <!-- 查询按钮 👇 -->
@@ -92,14 +93,14 @@ export default {
       loading: true,
       forbidden: false,
       channels: [],
+      rangeDate: '',
+      articles: [],
       form: {
         status: '',
         channel_id: '',
         begin_pubdate: '',
         end_pubdate: ''
       },
-      rangeDate: '',
-      articles: [],
       articleStatus: [
         {
           type: '',
@@ -129,13 +130,12 @@ export default {
     this.loadChannel()
   },
   methods: {
-    // onSubmit () {
-    //   console.log('submit!')
-    // },
+    // 页面变化加载指定页面   -----    👇
     onpageChange (page) {
       // console.log(page)
       this.loadArticle(page)
     },
+    // 获取文章列表   -----    👇
     loadArticle (page) {
       this.loading = true
       this.forbidden = true
@@ -152,9 +152,10 @@ export default {
           page: page,
           per_page: 10,
           status: this.form.status ? this.form.status : null,
-          channel_id: this.form.channel_id
-          // begin_pubdate,
-          // end_pubdate
+          channel_id: this.form.channel_id ? this.form.channel_id : null,
+          // 可从vue插件中得到相关属性值进行赋值
+          begin_pubdate: this.rangeDate[0],
+          end_pubdate: this.rangeDate[1]
         }
       })
         .then(res => {
@@ -171,6 +172,7 @@ export default {
           this.forbidden = false
         })
     },
+    // 获取频道信息   -----    👇
     loadChannel () {
       const token = window.localStorage.getItem('user-token')
       // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
@@ -184,7 +186,7 @@ export default {
         .then(res => {
           // 成功的话，可请求到参数
           console.log(res)
-          this.channels = res.data.data.channels
+          this.channels = [ { id: null, name: '全部频道' } ].concat(res.data.data.channels)
         })
         .catch(() => {
           // 登录错误 提示信息 登陆失败
