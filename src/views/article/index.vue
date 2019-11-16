@@ -9,19 +9,25 @@
       <el-form ref="form" :model="form" label-width="80px">
         <el-form-item label="文章状态">
           <el-radio-group v-model="form.status">
-            <el-radio-button label="全部"></el-radio-button>
-            <el-radio-button label="草稿"></el-radio-button>
-            <el-radio-button label="待审核"></el-radio-button>
-            <el-radio-button label="审核通过"></el-radio-button>
-            <el-radio-button label="审核失败"></el-radio-button>
+            <!-- 不传参  为全部显示 -->
+            <el-radio-button label>全部</el-radio-button>
+            <el-radio-button label="0">草稿</el-radio-button>
+            <el-radio-button label="1">待审核</el-radio-button>
+            <el-radio-button label="2">审核通过</el-radio-button>
+            <el-radio-button label="3">审核失败</el-radio-button>
+            <el-radio-button label="4">已删除</el-radio-button>
           </el-radio-group>
         </el-form-item>
 
         <!-- 按频道筛选  👇 -->
         <el-form-item label="频道列表">
           <el-select v-model="form.channel_id" placeholder="请选择文章列表">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+            <el-option
+              v-for="channel in channels"
+              :key = "channel.id"
+              :label="channel.name"
+              :value="channel.id"
+            ></el-option>
           </el-select>
         </el-form-item>
         <!-- 筛选时间  👇 -->
@@ -36,7 +42,8 @@
         </el-form-item>
         <!-- 查询按钮 👇 -->
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">查询</el-button>
+          <!-- 点击查询  👇  展示查询结果 -->
+          <el-button type="primary" @click="loadArticle(1)">查询</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -71,7 +78,7 @@
         layout="prev, pager, next"
         :total="articleValue"
         @current-change="onpageChange"
-        :disabled = 'forbidden'
+        :disabled="forbidden"
       ></el-pagination>
     </el-card>
   </div>
@@ -84,6 +91,7 @@ export default {
       articleValue: 0,
       loading: true,
       forbidden: false,
+      channels: [],
       form: {
         status: '',
         channel_id: '',
@@ -116,12 +124,16 @@ export default {
       ]
     }
   },
+  created () {
+    this.loadArticle(1)
+    this.loadChannel()
+  },
   methods: {
-    onSubmit () {
-      console.log('submit!')
-    },
+    // onSubmit () {
+    //   console.log('submit!')
+    // },
     onpageChange (page) {
-      console.log(page)
+      // console.log(page)
       this.loadArticle(page)
     },
     loadArticle (page) {
@@ -139,15 +151,14 @@ export default {
         params: {
           page: page,
           per_page: 10,
-          status: 2
-          // channel_id,
+          status: this.form.status ? this.form.status : null,
+          channel_id: this.form.channel_id
           // begin_pubdate,
           // end_pubdate
         }
       })
         .then(res => {
           // 成功的话，可请求到参数
-          console.log(res)
           this.articleValue = res.data.data.total_count
           this.articles = res.data.data.results
         })
@@ -159,10 +170,31 @@ export default {
           this.loading = false
           this.forbidden = false
         })
+    },
+    loadChannel () {
+      const token = window.localStorage.getItem('user-token')
+      // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
+      this.$http({
+        url: '/channels', // 路径
+        method: 'GET', // 请求类型
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(res => {
+          // 成功的话，可请求到参数
+          console.log(res)
+          this.channels = res.data.data.channels
+        })
+        .catch(() => {
+          // 登录错误 提示信息 登陆失败
+          console.log('shibais')
+        })
+      // .finally(() => {
+      //   this.loading = false
+      //   this.forbidden = false
+      // })
     }
-  },
-  created () {
-    this.loadArticle(1)
   }
 }
 </script>
