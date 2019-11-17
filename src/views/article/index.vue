@@ -143,14 +143,14 @@ export default {
     loadArticle (page) {
       this.loading = true
       this.forbidden = true
-      const token = window.localStorage.getItem('user-token')
+      // const token = window.localStorage.getItem('user-token')
       // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
       this.$http({
         url: '/articles', // 路径
         method: 'GET', // 请求类型
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
+        // headers: {
+        //   Authorization: `Bearer ${token}`
+        // },
         // query参数  需要通过params传递
         params: {
           page: page,
@@ -164,13 +164,12 @@ export default {
       })
         .then(res => {
           // 成功的话，可请求到参数
-          console.log(res)
           this.articleValue = res.data.data.total_count
           this.articles = res.data.data.results
         })
         .catch(() => {
           // 登录错误 提示信息 登陆失败
-          console.log(token, 'shibais')
+          console.log('shibai')
         })
         .finally(() => {
           this.loading = false
@@ -179,18 +178,13 @@ export default {
     },
     // 获取频道信息   -----    👇
     loadChannel () {
-      const token = window.localStorage.getItem('user-token')
       // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
       this.$http({
         url: '/channels', // 路径
-        method: 'GET', // 请求类型
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        method: 'GET' // 请求类型
       })
         .then(res => {
           // 成功的话，可请求到参数
-          console.log(res)
           this.channels = [{ id: null, name: '全部频道' }].concat(
             res.data.data.channels
           )
@@ -206,14 +200,10 @@ export default {
     },
     // 删除文章功能   -----    👇
     delArticle (id) {
-      const token = window.localStorage.getItem('user-token')
       // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
       this.$http({
         url: `/articles/${id}`, // 路径
-        method: 'DELETE', // 请求类型
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        method: 'DELETE' // 请求类型
         // query参数  需要通过params传递
       })
         .then(res => {

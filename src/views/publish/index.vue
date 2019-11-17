@@ -5,21 +5,22 @@
         <span>发表文章</span>
       </div>
       <el-form ref="form" label-width="80px">
-        <el-form-item label="标题" >
+        <el-form-item label="标题">
           <el-input v-model="article.title" style="width: 400px" placeholder="请输入标题"></el-input>
         </el-form-item>
 
         <el-form-item label="内容">
-          <el-input style="width: 400px" placeholder="请输入内容" v-model="article.content"></el-input>
+          <quill-editor ref="myQuillEditor" :option="editorOption" v-model="article.content"></quill-editor>
         </el-form-item>
+        <!-- 富文本编辑器 -->
 
         <el-form-item label="封面">
           <el-radio-group v-model="article.cover.type">
             <!-- 不传参  为全部显示 -->
-            <el-radio-button label=1>单图</el-radio-button>
-            <el-radio-button label=3>三图</el-radio-button>
-            <el-radio-button label=0>无图</el-radio-button>
-            <el-radio-button label=-1>自动</el-radio-button>
+            <el-radio-button label="1">单图</el-radio-button>
+            <el-radio-button label="3">三图</el-radio-button>
+            <el-radio-button label="0">无图</el-radio-button>
+            <el-radio-button label="-1">自动</el-radio-button>
           </el-radio-group>
         </el-form-item>
 
@@ -44,9 +45,18 @@
 </template>
 
 <script>
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+import { quillEditor } from 'vue-quill-editor'
 export default {
+  name: 'PublishArticle',
+  components: {
+    quillEditor
+  },
   data () {
     return {
+      editorOption: '',
       article: {
         title: '',
         content: '',
@@ -67,10 +77,10 @@ export default {
       // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
       this.$http({
         url: '/channels', // 路径
-        method: 'GET', // 请求类型
-        headers: {
-          Authorization: `Bearer ${window.localStorage.getItem('user-token')}`
-        }
+        method: 'GET' // 请求类型
+        // headers: {
+        //   Authorization: `Bearer ${window.localStorage.getItem('user-token')}`
+        // }
       })
         .then(res => {
           // 成功的话，可请求到参数
@@ -89,16 +99,15 @@ export default {
       this.$http({
         url: '/articles',
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${window.localStorage.getItem('user-token')}`
-        },
+        // headers: {
+        //   Authorization: `Bearer ${window.localStorage.getItem('user-token')}`
+        // },
         params: {
           draft
         },
         data: this.article
       })
         .then(res => {
-          console.log(res)
         })
         .catch(err => {
           console.log(err)
