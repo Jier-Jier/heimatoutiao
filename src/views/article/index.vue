@@ -1,16 +1,17 @@
 
 <template>
   <div>
+    <!-- 文章条件筛选区  👇 -->
     <el-card>
       <div slot="header" class="clearfix">
         <span>全部图文</span>
       </div>
-      <!-- 文章状态 👇 -->
       <el-form ref="form" :model="form" label-width="80px">
+        <!-- 文章状态 👇 -->
         <el-form-item label="文章状态">
           <el-radio-group v-model="form.status">
             <!-- 不传参  为全部显示 -->
-            <el-radio-button label>全部</el-radio-button>
+            <el-radio-button :label="null">全部</el-radio-button>
             <el-radio-button label="0">草稿</el-radio-button>
             <el-radio-button label="1">待审核</el-radio-button>
             <el-radio-button label="2">审核通过</el-radio-button>
@@ -24,7 +25,7 @@
           <el-select v-model="form.channel_id" placeholder="请选择文章列表">
             <el-option
               v-for="channel in channels"
-              :key = "channel.id"
+              :key="channel.id"
               :label="channel.name"
               :value="channel.id"
             ></el-option>
@@ -32,6 +33,8 @@
         </el-form-item>
         <!-- 筛选时间  👇 -->
         <el-form-item label="时间选择">
+          <!--👇👇👇 value-format是ElementUI中内置的属性 通过它可以将日期
+          格式转化为自己想要的格式以便进行后续使用 👇👇👇-->
           <el-date-picker
             v-model="rangeDate"
             type="daterange"
@@ -48,6 +51,7 @@
         </el-form-item>
       </el-form>
     </el-card>
+    <!-- 文章展示区域  👇 -->
     <el-card style="text-align: center">
       <div width="100%" style="text-align: left" slot="header" class="clearfix">
         <span>共{{this.articleValue}}条信息</span>
@@ -70,7 +74,7 @@
         <el-table-column prop="address" label="操作">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini" type="danger" @click="delArticle(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -95,11 +99,10 @@ export default {
       channels: [],
       rangeDate: '',
       articles: [],
+      page: 1,
       form: {
-        status: '',
-        channel_id: '',
-        begin_pubdate: '',
-        end_pubdate: ''
+        status: null,
+        channel_id: null
       },
       articleStatus: [
         {
@@ -133,6 +136,7 @@ export default {
     // 页面变化加载指定页面   -----    👇
     onpageChange (page) {
       // console.log(page)
+      this.page = page
       this.loadArticle(page)
     },
     // 获取文章列表   -----    👇
@@ -151,15 +155,16 @@ export default {
         params: {
           page: page,
           per_page: 10,
-          status: this.form.status ? this.form.status : null,
+          status: this.form.status,
           channel_id: this.form.channel_id ? this.form.channel_id : null,
           // 可从vue插件中得到相关属性值进行赋值
-          begin_pubdate: this.rangeDate[0],
-          end_pubdate: this.rangeDate[1]
+          begin_pubdate: this.rangeDate ? this.rangeDate[0] : null,
+          end_pubdate: this.rangeDate ? this.rangeDate[1] : null
         }
       })
         .then(res => {
           // 成功的话，可请求到参数
+          console.log(res)
           this.articleValue = res.data.data.total_count
           this.articles = res.data.data.results
         })
@@ -186,7 +191,9 @@ export default {
         .then(res => {
           // 成功的话，可请求到参数
           console.log(res)
-          this.channels = [ { id: null, name: '全部频道' } ].concat(res.data.data.channels)
+          this.channels = [{ id: null, name: '全部频道' }].concat(
+            res.data.data.channels
+          )
         })
         .catch(() => {
           // 登录错误 提示信息 登陆失败
@@ -196,6 +203,28 @@ export default {
       //   this.loading = false
       //   this.forbidden = false
       // })
+    },
+    // 删除文章功能   -----    👇
+    delArticle (id) {
+      const token = window.localStorage.getItem('user-token')
+      // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
+      this.$http({
+        url: `/articles/${id}`, // 路径
+        method: 'DELETE', // 请求类型
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+        // query参数  需要通过params传递
+      })
+        .then(res => {
+          // 成功
+
+          this.loadArticle(this.page)
+        })
+        .catch(err => {
+          // 登录错误 提示信息 登陆失败
+          console.log(err, id, '失败')
+        })
     }
   }
 }
