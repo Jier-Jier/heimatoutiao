@@ -6,10 +6,10 @@
       <div slot="header" class="clearfix">
         <span>全部图文</span>
       </div>
-      <el-form ref="form" :model="form" label-width="80px">
+      <el-form ref="form" :model="article" label-width="80px">
         <!-- 文章状态 👇 -->
         <el-form-item label="文章状态">
-          <el-radio-group v-model="form.status">
+          <el-radio-group v-model="article.status">
             <!-- 不传参  为全部显示 -->
             <el-radio-button :label="null">全部</el-radio-button>
             <el-radio-button label="0">草稿</el-radio-button>
@@ -21,7 +21,7 @@
         </el-form-item>
 
         <!-- 按频道筛选  👇 -->
-        <el-form-item label="频道列表">
+        <!-- <el-form-item label="频道列表">
           <el-select v-model="form.channel_id" placeholder="请选择文章列表">
             <el-option
               v-for="channel in channels"
@@ -30,7 +30,11 @@
               :value="channel.id"
             ></el-option>
           </el-select>
+        </el-form-item> -->
+        <el-form-item label="频道列表">
+            <channel-load v-model="article.channel_id"></channel-load>
         </el-form-item>
+
         <!-- 筛选时间  👇 -->
         <el-form-item label="时间选择">
           <!--👇👇👇 value-format是ElementUI中内置的属性 通过它可以将日期
@@ -89,7 +93,12 @@
   </div>
 </template>
 <script>
+import channelLoad from '@/components/channelLoad'
+
 export default {
+  components: {
+    channelLoad
+  },
   name: 'Article',
   data () {
     return {
@@ -100,7 +109,7 @@ export default {
       rangeDate: '',
       articles: [],
       page: 1,
-      form: {
+      article: {
         status: null,
         channel_id: null
       },
@@ -130,7 +139,7 @@ export default {
   },
   created () {
     this.loadArticle(1)
-    this.loadChannel()
+    // this.loadChannel()
   },
   methods: {
     // 页面变化加载指定页面   -----    👇
@@ -155,8 +164,8 @@ export default {
         params: {
           page: page,
           per_page: 10,
-          status: this.form.status,
-          channel_id: this.form.channel_id ? this.form.channel_id : null,
+          status: this.article.status,
+          channel_id: this.article.channel_id ? this.article.channel_id : null,
           // 可从vue插件中得到相关属性值进行赋值
           begin_pubdate: this.rangeDate ? this.rangeDate[0] : null,
           end_pubdate: this.rangeDate ? this.rangeDate[1] : null
@@ -175,28 +184,6 @@ export default {
           this.loading = false
           this.forbidden = false
         })
-    },
-    // 获取频道信息   -----    👇
-    loadChannel () {
-      // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
-      this.$http({
-        url: '/channels', // 路径
-        method: 'GET' // 请求类型
-      })
-        .then(res => {
-          // 成功的话，可请求到参数
-          this.channels = [{ id: null, name: '全部频道' }].concat(
-            res.data.data.channels
-          )
-        })
-        .catch(() => {
-          // 登录错误 提示信息 登陆失败
-          console.log('shibais')
-        })
-      // .finally(() => {
-      //   this.loading = false
-      //   this.forbidden = false
-      // })
     },
     // 删除文章功能   -----    👇
     delArticle (id) {

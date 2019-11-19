@@ -10,7 +10,11 @@
         </el-form-item>
 
         <el-form-item label="内容">
-          <quill-editor ref="myQuillEditor" :option="editorOption" v-model="article.content"></quill-editor>
+          <quill-editor
+          ref="myQuillEditor"
+          :option="editorOption"
+          v-model="article.content"
+        ></quill-editor>
         </el-form-item>
         <!-- 富文本编辑器 -->
 
@@ -24,7 +28,7 @@
           </el-radio-group>
         </el-form-item>
 
-        <el-form-item label="频道列表">
+        <!-- <el-form-item label="频道列表">
           <el-select v-model="article.channel_id" placeholder="请选择文章列表">
             <el-option
               v-for="channel in channels"
@@ -33,8 +37,11 @@
               :value="channel.id"
             ></el-option>
           </el-select>
+        </el-form-item> -->
+        <el-form-item label="频道列表">
+            <channel-load v-model="article.channel_id"></channel-load>
         </el-form-item>
-
+        <!-- 按钮   👇 -->
         <el-form-item>
           <el-button type="primary" @click="onsubmit(false)">发表文章</el-button>
           <el-button @click="onsubmit(true)">存入草稿</el-button>
@@ -49,14 +56,17 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 import { quillEditor } from 'vue-quill-editor'
+import channelLoad from '@/components/channelLoad'
 export default {
   name: 'PublishArticle',
   components: {
-    quillEditor
+    quillEditor,
+    channelLoad
   },
   data () {
     return {
       editorOption: '',
+      loading: true,
       article: {
         title: '',
         content: '',
@@ -70,36 +80,35 @@ export default {
     }
   },
   created () {
-    this.loadChannel()
-    if (this.$route.params.articleId) {
-      this.loadArticle()
-    }
+    // this.loadChannel()
+    // if (this.$route.params.articleId) {
+    //   this.loadArticle()
+    // }
   },
   methods: {
-    loadChannel () {
-      this.$http({
-        url: '/channels', // 路径
-        method: 'GET' // 请求类型
-        // headers: {
-        //   Authorization: `Bearer ${window.localStorage.getItem('user-token')}`
-        // }
-      })
-        .then(res => {
-          // 成功的话，可请求到参数
-          this.channels = res.data.data.channels
-        })
-        .catch(() => {
-          // 登录错误 提示信息
-          console.log('shibais')
-        })
-    },
+    // loadChannel () {
+    //   this.$http({
+    //     url: '/channels', // 路径
+    //     method: 'GET' // 请求类型
+    //   })
+    //     .then(res => {
+    //       // 成功的话，可请求到参数
+    //       this.channels = res.data.data.channels
+    //     })
+    //     .catch(() => {
+    //       // 登录错误 提示信息
+    //       console.log('shibais')
+    //     })
+    // },
     onsubmit (draft) {
+      this.loading = true
       if (this.$route.params.articleId) {
         this.updateArticle(draft)
       } else {
         this.addArticle(draft)
       }
       this.$router.push('/article')
+      this.loading = false
     },
     // 添加文章 👇
     addArticle (draft) {
