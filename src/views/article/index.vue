@@ -73,7 +73,7 @@
         <el-table-column prop="pubdate" label="发布日期"></el-table-column>
         <el-table-column prop="address" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            <el-button size="mini" index="publish" @click="editArticle(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="danger" @click="delArticle(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -215,6 +215,10 @@ export default {
           // 登录错误 提示信息 登陆失败
           console.log(err, id, '失败')
         })
+    },
+    editArticle (id) {
+      // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
+      this.$router.push(`/publish/${id}`)
     }
   }
 }

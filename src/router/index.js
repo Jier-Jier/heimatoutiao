@@ -44,6 +44,10 @@ const routes = [
       {
         path: '/image',
         component: Image
+      },
+      {
+        path: '/publish/:articleId',
+        component: Publish
       }
     ]
   },

@@ -71,6 +71,9 @@ export default {
   },
   created () {
     this.loadChannel()
+    if (this.$route.params.articleId) {
+      this.loadArticle()
+    }
   },
   methods: {
     loadChannel () {
@@ -84,6 +87,7 @@ export default {
       })
         .then(res => {
           // 成功的话，可请求到参数
+          // console.log(this.$route)
           this.channels = res.data.data.channels
         })
         .catch(() => {
@@ -108,6 +112,19 @@ export default {
         data: this.article
       })
         .then(res => {
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    loadArticle () {
+      this.$http({
+        url: `/articles/${this.$route.params.articleId}`,
+        method: 'get'
+      })
+        .then(res => {
+          console.log(res)
+          this.article = res.data.data
         })
         .catch(err => {
           console.log(err)
