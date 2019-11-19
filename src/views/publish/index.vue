@@ -77,7 +77,6 @@ export default {
   },
   methods: {
     loadChannel () {
-      // 需要传入token 只有有token的用户才能拿到数据，保护接口 否则401错误
       this.$http({
         url: '/channels', // 路径
         method: 'GET' // 请求类型
@@ -87,25 +86,26 @@ export default {
       })
         .then(res => {
           // 成功的话，可请求到参数
-          // console.log(this.$route)
           this.channels = res.data.data.channels
         })
         .catch(() => {
-          // 登录错误 提示信息 登陆失败
+          // 登录错误 提示信息
           console.log('shibais')
         })
-      // .finally(() => {
-      //   this.loading = false
-      //   this.forbidden = false
-      // })
     },
     onsubmit (draft) {
+      if (this.$route.params.articleId) {
+        this.updateArticle(draft)
+      } else {
+        this.addArticle(draft)
+      }
+      this.$router.push('/article')
+    },
+    // 添加文章 👇
+    addArticle (draft) {
       this.$http({
         url: '/articles',
         method: 'POST',
-        // headers: {
-        //   Authorization: `Bearer ${window.localStorage.getItem('user-token')}`
-        // },
         params: {
           draft
         },
@@ -117,14 +117,31 @@ export default {
           console.log(err)
         })
     },
+    // 加载要编辑的文章
     loadArticle () {
       this.$http({
         url: `/articles/${this.$route.params.articleId}`,
         method: 'get'
       })
         .then(res => {
-          console.log(res)
           this.article = res.data.data
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    // 编辑文章 👇
+    updateArticle (draft) {
+      this.$http({
+        url: `/articles/${this.$route.params.articleId}`,
+        method: 'put',
+        data: this.article
+      })
+        .then(res => {
+          this.$message({
+            type: 'success',
+            message: '成功'
+          })
         })
         .catch(err => {
           console.log(err)
